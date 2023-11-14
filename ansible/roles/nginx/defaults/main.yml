@@ -1,0 +1,4 @@
+---
+nginx_listen_port: 2020
+source_file_path: templates/nginx.conf.j2
+dest_file_path: /etc/nginx/nginx.conf

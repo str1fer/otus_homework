@@ -1,0 +1,20 @@
+---
+- name: "Install nginx"
+  apt:
+    name: nginx
+    state: latest
+  notify:
+    - restart nginx
+
+- name: "Start nginx"
+  service:
+    name: nginx.service
+    state: started
+    enabled: true
+
+- name: copy nginx config
+  template:
+    src: "{{ source_file_path }}"
+    dest: "{{ dest_file_path }}"
+  notify:
+    - reload nginx
