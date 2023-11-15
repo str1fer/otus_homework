@@ -1,2 +1,2 @@
 [web]
-Ubuntu ansible_host=127.0.0.1 ansible_port=2200 ansible_private_key_file=.vagrant/machines/default/virtualbox/private_key
+Ubuntu ansible_host=127.0.0.1 ansible_port=2201 ansible_private_key_file=.vagrant/machines/default/virtualbox/private_key
