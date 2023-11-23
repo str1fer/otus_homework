@@ -4,11 +4,11 @@
   tags: zero
 
 - name: create new raid
-  shell: "mdadm --create --verbose /dev/md0 -l 6 -n 5 /dev/sd{b,c,d,e,f}"
+  shell: "mdadm --create --verbose {{ path_raid_disk }} -l 6 -n 5 /dev/sd{b,c,d,e,f}"
   tags: create
 
 - name: "add variable raid_check"
-  shell: "cat /proc/mdstat | grep md0"
+  shell: "cat {{ path_mdstat }} | grep md0"
   register: raid_check
   tags: info
 
@@ -19,13 +19,13 @@
 
 - name: "create dir"
   ansible.builtin.file:
-    path: /etc/{{ mdadm_dir }}
+    path: "{{ path_mdadm_dir }}"
     state: directory
   tags: mkdir_mdadm
 
 - name: "create file"
   file:
-    path: /etc/mdadm/{{ conf_file }}
+    path: "{{ path_conf_file }}"
     state: touch
 #    owner: root
 #    group: root
@@ -34,39 +34,39 @@
 
 - name: "add array description"
   shell: |
-    echo "DEVICE partitions" > /etc/mdadm/mdadm.conf
-    mdadm --detail --scan --verbose | awk '/ARRAY/ {print}' >> /etc/mdadm/mdadm.conf
+    echo "DEVICE partitions" > {{ path_conf_file }}
+    mdadm --detail --scan --verbose | awk '/ARRAY/ {print}' >> {{ path_conf_file }}
   tags: conf_file
 
 - name: "part raid sections"
   shell: |
-    parted -s /dev/md0 mklabel gpt
-    parted /dev/md0 mkpart primary ext4 0% 20%
-    parted /dev/md0 mkpart primary ext4 20% 40%
-    parted /dev/md0 mkpart primary ext4 40% 60%
-    parted /dev/md0 mkpart primary ext4 60% 80%
-    parted /dev/md0 mkpart primary ext4 80% 100%
+    parted -s {{ path_raid_disk }} mklabel gpt
+    parted {{ path_raid_disk }} mkpart primary ext4 0% 20%
+    parted {{ path_raid_disk }} mkpart primary ext4 20% 40%
+    parted {{ path_raid_disk }} mkpart primary ext4 40% 60%
+    parted {{ path_raid_disk }} mkpart primary ext4 60% 80%
+    parted {{ path_raid_disk }} mkpart primary ext4 80% 100%
   tags: part
 
 - name: "Create a ext4 filesystem"
   community.general.filesystem:
     fstype: ext4
-    dev: /dev/{{ item.src }}
-  with_items: "{{ mount }}"
+    dev: "{{ item.src }}"
+  with_items: "{{ sections }}"
   tags: mkfs
 
 - name: "create dir"
   ansible.builtin.file:
-    path: /raid/{{ item.path }}
+    path: "{{ item.path }}"
     state: directory
-  with_items: "{{ mount }}"
+  with_items: "{{ sections }}"
   tags: mkdir_raid
 
 - name: "mount storage and update /etc/fstab"
   mount:
     state: mounted
-    path: /raid/{{ item.path }}
-    src: /dev/{{ item.src }}
+    path: "{{ item.path }}"
+    src: "{{ item.src }}"
     fstype: ext4
-  with_items: "{{ mount }}"
+  with_items: "{{ sections }}"
   tags: mount
