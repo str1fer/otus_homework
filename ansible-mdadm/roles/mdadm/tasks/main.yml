@@ -1,0 +1,72 @@
+---
+- name: zero superblock
+  shell: "mdadm --zero-superblock --force /dev/sd{b,c,d,e,f}"
+  tags: zero
+
+- name: create new raid
+  shell: "mdadm --create --verbose /dev/md0 -l 6 -n 5 /dev/sd{b,c,d,e,f}"
+  tags: create
+
+- name: "add variable raid_check"
+  shell: "cat /proc/mdstat | grep md0"
+  register: raid_check
+  tags: info
+
+- name: "Print riad_check"
+  ansible.builtin.debug:
+    var: "raid_check.stdout"
+  tags: info
+
+- name: "create dir"
+  ansible.builtin.file:
+    path: /etc/{{ mdadm_dir }}
+    state: directory
+  tags: mkdir_mdadm
+
+- name: "create file"
+  file:
+    path: /etc/mdadm/{{ conf_file }}
+    state: touch
+#    owner: root
+#    group: root
+#    mode: '766'
+  tags: mkfile
+
+- name: "add array description"
+  shell: |
+    echo "DEVICE partitions" > /etc/mdadm/mdadm.conf
+    mdadm --detail --scan --verbose | awk '/ARRAY/ {print}' >> /etc/mdadm/mdadm.conf
+  tags: conf_file
+
+- name: "hz"
+  shell: |
+    parted -s /dev/md0 mklabel gpt
+    parted /dev/md0 mkpart primary ext4 0% 20%
+    parted /dev/md0 mkpart primary ext4 20% 40%
+    parted /dev/md0 mkpart primary ext4 40% 60%
+    parted /dev/md0 mkpart primary ext4 60% 80%
+    parted /dev/md0 mkpart primary ext4 80% 100%
+  tags: part
+
+- name: Create a ext4 filesystem
+  community.general.filesystem:
+    fstype: ext4
+    dev: /dev/{{ item.src }}
+  with_items: "{{ mount }}"
+  tags: mkfs
+
+- name: "create dir"
+  ansible.builtin.file:
+    path: /raid/{{ item.path }}
+    state: directory
+  with_items: "{{ mount }}"
+  tags: mkdir_raid
+
+- name: mount storage and update /etc/fstab
+  mount:
+    state: mounted
+    path: /raid/{{ item.path }}
+    src: /dev/{{ item.src }}
+    fstype: ext4
+  with_items: "{{ mount }}"
+  tags: mount

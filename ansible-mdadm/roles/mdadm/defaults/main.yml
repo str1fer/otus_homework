@@ -1,0 +1,3 @@
+---
+conf_file: mdadm.conf
+mdadm_dir: mdadm

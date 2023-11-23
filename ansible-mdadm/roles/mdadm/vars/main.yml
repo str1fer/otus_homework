@@ -1,0 +1,7 @@
+---
+mount:
+  - {"path": "part1", "src": "md0p1"}
+  - {"path": "part2", "src": "md0p2"}
+  - {"path": "part3", "src": "md0p3"}
+  - {"path": "part4", "src": "md0p4"}
+  - {"path": "part5", "src": "md0p5"}
