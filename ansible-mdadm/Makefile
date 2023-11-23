@@ -1,3 +1,3 @@
 # Makefile
 mdadm:
-	ansible-playbook universal.yml --tags "info"
+	ansible-playbook universal.yml
