@@ -1,0 +1,1 @@
+{"rsync":{"/vagrant":{"type":"rsync","guestpath":"/vagrant","hostpath":"/home/amv/otus_homework/zfs","disabled":false,"__vagrantfile":true,"owner":"vagrant","group":"vagrant"}}}
