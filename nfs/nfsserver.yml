@@ -1,0 +1,8 @@
+---
+- name: "NFS_server"
+  hosts: nfss
+  become: true
+  gather_facts: false
+  roles:
+    - role: nfss
+      tags: nfss

@@ -1,0 +1,20 @@
+---
+- name: "Install nfs utils"
+  yum:
+    name: nfs-utils
+    state: latest
+
+- name: "Start firewalld daemon"
+  service:
+    state: started
+    name: firewalld
+    enabled: true
+
+- name: "add nfs conf"
+  ansible.builtin.lineinfile:
+    path: "{{ path_fstab }}"
+    line: "{{ nfss_share_fstab }}"
+- name: "restart service"
+  shell: |
+    systemctl daemon-reload
+    systemctl restart remote-fs.target

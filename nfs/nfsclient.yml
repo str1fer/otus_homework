@@ -1,0 +1,8 @@
+---
+- name: "NFS_client"
+  hosts: nfsc
+  become: true
+  gather_facts: false
+  roles:
+    - role: nfsc
+      tags: nfsc

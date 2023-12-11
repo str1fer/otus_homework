@@ -1,0 +1,64 @@
+---
+- name: "Start firewalld daemon"
+  service:
+    state: started
+    name: firewalld
+    enabled: true
+
+- name: "Allow access to NFS service"
+  shell: |
+    firewall-cmd --add-service="nfs3" \
+    --add-service="rpc-bind" \
+    --add-service="mountd" \
+    --permanent
+    firewall-cmd --reload
+  tags: access_nfs
+
+- name: "Start NFS daemon"
+  service:
+    state: started
+    name: nfs
+    enabled: true
+
+- name: "ss to show"
+  shell: ss -tnplu | grep '111\|2049\|20048'
+  register: port_check
+  tags: info
+
+- name: "Print port_check"
+  debug:
+    var: "port_check.stdout_lines"
+  tags: info
+
+- name: "create share dir"
+  file:
+    path: "{{ path_upload }}"
+    state: directory
+    mode: '0777'
+
+- name: "create file"
+  file:
+    path: "{{ path_share }}"
+    state: directory
+    owner: nfsnobody
+    group: nfsnobody
+
+- name: "add nfs conf"
+  ansible.builtin.lineinfile:
+    path: "{{ path_exports }}"
+    line: "{{ conf_exports }}"
+    create: true
+    owner: root
+    group: root
+    mode: 0664
+
+- name: "export nfss"
+  shell: exportfs -r
+
+- name: "display share dir options"
+  shell: exportfs -s
+  register: nfs_options
+
+- name: "show nfs options"
+  debug:
+    var: "nfs_options.stdout_lines"
