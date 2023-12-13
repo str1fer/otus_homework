@@ -1,0 +1,24 @@
+# -*- mode: ruby -*-
+# vim: set ft=ruby :
+
+GLOBAL_SERVER_NAME = "Repo" 
+GLOBAL_BOXNAME = "generic/centos8s"
+GLOBAL_BASECONF_SCRIPT = "scripts/base.sh"
+GLOBAL_REPO_SCRIPT = "scripts/repo.sh"
+Vagrant.configure("2") do |config|
+
+    config.vm.box = GLOBAL_BOXNAME
+    
+    config.vm.provider :virtualbox do |vb|
+        vb.customize ["modifyvm", :id, "--memory", "512"]
+        vb.customize ["modifyvm", :id, "--cpus", "1"]
+    end
+    
+    config.vm.define "repo" do |repo|
+        repo.vm.network "private_network", ip: "192.168.56.10",  virtualbox__intnet: "net1"
+        repo.vm.hostname = GLOBAL_SERVER_NAME
+        repo.vm.provision "shell", path: GLOBAL_BASECONF_SCRIPT
+        repo.vm.provision "shell", path: GLOBAL_REPO_SCRIPT
+    end
+
+end
