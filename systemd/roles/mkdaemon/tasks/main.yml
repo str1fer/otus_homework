@@ -1,0 +1,60 @@
+---
+- name: "copy files"
+  template:
+    src: "{{ item.source }}"
+    dest: "{{ item.destination }}"
+  with_items: "{{ copy_files }}"
+
+- name: "file permissions"
+  file:
+    path: "{{ path_watchlog_script }}"
+    mode: 755
+
+- name: "create unit file"
+  template:
+    src: "{{ item.source }}"
+    dest: "{{ item.destination }}"
+  with_items: "{{ copy_units }}"
+  notify: start watchlog.time
+
+- name: "Install spawn-fcgi"
+  yum:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - epel-release
+    - spawn-fcgi
+    - php
+    - php-cli
+    - mod_fcgid
+    - httpd
+
+- name: "add spawn files"
+  template:
+    src: "{{ item.source }}"
+    dest: "{{ item.destination }}"
+  with_items: "{{ copy_spawn }}"
+  notify: start spawn-fcgi
+
+- name: "add update httpd unit file"
+  template:
+    src: "{{ item.source }}"
+    dest: "{{ item.destination }}"
+  with_items: "{{ copy_httpd }}"
+
+- name: "add environment file"
+  template:
+    src: "{{ item.source }}"
+    dest: "{{ item.destination }}"
+  with_items: "{{ copy_envfile }}"
+
+- name: "add httpd config file"
+  template:
+    src: "{{ item.source }}"
+    dest: "{{ item.destination }}"
+  with_items: "{{ copy_httpd_conf }}"
+  notify:
+    - start first
+    - start second
+    - add variable check_httpd
+    - print check_httpd

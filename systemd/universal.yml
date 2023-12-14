@@ -1,0 +1,9 @@
+---
+- name: "NFS_client"
+  hosts: Centos8
+  become: true
+  gather_facts: false
+  ignore_errors: true
+  roles:
+    - role: mkdaemon
+      tags: mkdaemon

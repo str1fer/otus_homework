@@ -1,0 +1,22 @@
+# -*- mode: ruby -*-
+# vim: set ft=ruby :
+
+GLOBAL_SERVER_NAME = "srv" 
+GLOBAL_BOXNAME = "generic/centos8s"
+GLOBAL_BASECONF_SCRIPT = "scripts/base.sh"
+Vagrant.configure("2") do |config|
+
+    config.vm.box = GLOBAL_BOXNAME
+    
+    config.vm.provider :virtualbox do |vb|
+        vb.customize ["modifyvm", :id, "--memory", "512"]
+        vb.customize ["modifyvm", :id, "--cpus", "1"]
+    end
+    
+    config.vm.define "srv" do |srv|
+        srv.vm.network "private_network", ip: "192.168.56.10",  virtualbox__intnet: "net1"
+        srv.vm.hostname = GLOBAL_SERVER_NAME
+        srv.vm.provision "shell", path: GLOBAL_BASECONF_SCRIPT
+    end
+
+end

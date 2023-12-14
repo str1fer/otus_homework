@@ -1,0 +1,28 @@
+---
+path_watchlog_file: /etc/sysconfig/watchlog
+path_watchlog_log: /var/log/watchlog.log
+path_watchlog_script: /opt/watchlog.sh
+path_watchlog_unit: /etc/systemd/system/
+copy_files:
+  - {"source": "templates/watchlog", "destination": "/etc/sysconfig/watchlog"}
+  - {"source": "templates/watchlog.log", "destination": "/var/log/watchlog.log"}
+  - {"source": "templates/watchlog.sh", "destination": "/opt/watchlog.sh"}
+
+copy_units:
+  - {"source": "templates/watchlog.service", "destination": "/etc/systemd/system/watchlog.service"}
+  - {"source": "templates/watchlog.timer", "destination": "/etc/systemd/system/watchlog.timer"}
+
+copy_spawn:
+  - {"source": "templates/spawn-fcgi", "destination": "/etc/sysconfig/spawn-fcgi"}
+  - {"source": "templates/spawn-fcgi.service", "destination": "/etc/systemd/system/spawn-fcgi.service"}
+
+copy_httpd:
+  - {"source": "templates/httpd.service", "destination": "/usr/lib/systemd/system/httpd.service"}
+
+copy_envfile:
+  - {"source": "templates/httpd-first", "destination": "/etc/sysconfig/httpd-first"}
+  - {"source": "templates/httpd-second", "destination": "/etc/sysconfig/httpd-second"}
+
+copy_httpd_conf:
+  - {"source": "templates/first.conf", "destination": "/etc/httpd/conf/first.conf", "name": "httpd@first"}
+  - {"source": "templates/second.conf", "destination": "/etc/httpd/conf/second.conf", "name": "httpd@second"}

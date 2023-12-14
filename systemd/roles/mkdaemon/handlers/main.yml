@@ -1,0 +1,33 @@
+---
+- name: "start watchlog.time"
+  systemd:
+    name: watchlog.timer
+    state: started
+    enabled: true
+
+- name: "start spawn-fcgi"
+  systemd:
+    name: spawn-fcgi
+    state: started
+    enabled: true
+
+- name: "start first"
+  systemd:
+    name: httpd@first
+    state: started
+    enabled: true
+
+- name: "start second"
+  systemd:
+    name: httpd@second
+    state: started
+    enabled: true
+
+- name: "add variable check_httpd"
+  shell: ss -tnulp | grep httpd
+  register: check_httpd
+  notify: print check_httpd
+
+- name: "print check_httpd"
+  debug:
+    var: "check_httpd.stdout_lines"
